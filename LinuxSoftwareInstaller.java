@@ -39,8 +39,9 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
             }
         }
         
-        //Only installs if package is not installed.
+        
         try {
+            //Only installs if package is not installed.
             if (!installer.isPackageInstalled(p)) {
                 installer.installPackage(p);
                 System.out.println("Successfully installed " + p.getName());
@@ -51,6 +52,7 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
             System.out.println("Failed to install " + p.getName());
             
             //Uninstall the installed packages to restore to before point
+            System.out.println("Returning to restore point.");
             for (SoftwarePackage pkg : installedDependencies){
                 uninstallPackage(pkg, installedDependencies);
             }
@@ -82,7 +84,8 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
             if (!isNeeded) {
                 installedSet.remove(p);
                 System.out.println(p.getName() + " has been uninstalled.");
-                
+
+                //Check if p dependencies are exclusive to p, and can also be uninstalled
                 if (p.getDependencies() != null){
                     for (SoftwarePackage dependency : p.getDependencies()){
                         uninstallPackage(dependency, installedSet);
@@ -90,7 +93,7 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
                 }
             }
         } catch (Exception e){
-            //TO DO
+            //Revert to restore point.
         }
     }
     
