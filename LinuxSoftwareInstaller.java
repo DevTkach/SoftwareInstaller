@@ -10,7 +10,7 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
     }
 
     //Set of all installed packages
-    private Set<SoftwarePackage> installedPackages = new HashSet<>()
+    private Set<SoftwarePackage> installedPackages = new HashSet<>();
 
 
     @Override
