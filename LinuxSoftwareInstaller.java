@@ -61,23 +61,56 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
     
     @Override
     public void uninstallPackage(SoftwarePackage p) {
+        //Creates a set of pkgs to uninstall, uninstalls all at once
         Set<SoftwarePackage> packagesToUninstall = new HashSet<>();
-        uninstallPackage(p, packagesToUninstall, installedPackages);
-        installedPackages.removeAll(packagesToUninstall);
+
+        //Creates a visited set to protect against infinite recursion
+        Set<SoftwarePackage> visited = new HashSet<>();
+
+        //Proceeds only if there are no errors
+        boolean success = uninstallPackage(
+            p, 
+            packagesToUninstall, 
+            visited, 
+            installedPackages
+        );
+
+        if (success){
+            installedPackages.removeAll(packagesToUninstall);
+            System.out.println("Successfully uninstalled " + p.getName() + " and all unneeded dependencies.");
+        } else {
+            System.out.println("Uninstall failed, no changes made.");
+        }
     }
     
-    private void uninstallPackage(SoftwarePackage p, Set<SoftwarePackage> packagesToUninstall, Set<SoftwarePackage> installedPackages) {
+    private boolean uninstallPackage(
+        SoftwarePackage p, 
+        Set<SoftwarePackage> packagesToUninstall, 
+        Set<SoftwarePackage> visited, 
+        Set<SoftwarePackage> installedPackages
+    ) {
+        
+        //If already visited, infinite recursion detected, abort and rollback
+        if(visited.contains(p)){
+            System.out.println("Circular dependency detected. Uninstall failed.");
+            return false;
+        }
+
+        visited.add(p);
+
+        //Tracks shared dependencies
         boolean isNeeded = false;
         
         try {
             //Check all installed packages to see if p is needed by any of them
             for (SoftwarePackage pkg : installedPackages) {
-                if (pkg.getDependencies() != null && !packagesToUninstall.contains(pkg)) {
-                    if (pkg.getDependencies().contains(p)) {
-                        isNeeded = true;
-                        System.out.println("Package " + p.getName() + " is needed for " + pkg.getName() + ".");
-                        break;
-                    }
+                if (pkg.getDependencies() != null && 
+                    !packagesToUninstall.contains(pkg) &&
+                    pkg.getDependencies().contains(p)) 
+                {
+                    isNeeded = true;
+                    System.out.println("Package " + p.getName() + " is needed for " + pkg.getName() + ".");
+                    break;
                 }
             }
             
@@ -88,13 +121,26 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
                 //Check if p dependencies are exclusive to p, and can also be uninstalled
                 if (p.getDependencies() != null){
                     for (SoftwarePackage dependency : p.getDependencies()){
-                        uninstallPackage(dependency, packagesToUninstall, installedPackages);
+                        boolean success = uninstallPackage(
+                            dependency, 
+                            packagesToUninstall, 
+                            visited, 
+                            installedPackages
+                        );
+
+                        if (!success){
+                            return false;
+                        }
                     }
                 }
             }
         } catch (Exception e){
-            //Revert to restore point.
+            //If any error, uninstall nothing (revert to restore point).
+            System.out.println("Uninstall failed.");
+            return false;
         }
+
+        return true;
     }
     
     @Override
