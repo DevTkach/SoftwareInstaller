@@ -11,23 +11,32 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
 
     //Set of all installed packages
     private Set<SoftwarePackage> installedPackages = new HashSet<>();
+    
 
-
+/*===== INSTALL PACKAGE ============================*/
     @Override
     public void installPackage(SoftwarePackage p) {
-        installPackage(p, new HashSet<SoftwarePackage>(), new HashSet<SoftwarePackage>());
+        installPackage(
+            p, 
+            new HashSet<SoftwarePackage>(), 
+            new HashSet<SoftwarePackage>()
+        );
     }
     
-    private void installPackage(SoftwarePackage p, Set<SoftwarePackage> visited, Set<SoftwarePackage> installedDependencies) {
+    private boolean installPackage(
+        SoftwarePackage p, 
+        Set<SoftwarePackage> visited, 
+        Set<SoftwarePackage> installedDependencies
+    ) {
         //Checks if visited, stops infinite recursion
         if (visited.contains(p)) {
             System.out.println("Circular dependency detected. Install failed.");
             
-            //Uninstall the installed packages to restore to before point
-            for (SoftwarePackage pkg : installedDependencies){
-                uninstallPackage(pkg, installedDependencies);
-            }
-            return;
+            //Force uninstall pkgs already installed.
+            System.out.println("Returning to restore point.");
+            installedPackages.removeAll(installedDependencies);  //equivalent to uninstall
+            installedDependencies.clear();
+            return false;
         }
         
         visited.add(p);
@@ -51,14 +60,17 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
         } catch (Exception e) {
             System.out.println("Failed to install " + p.getName());
             
-            //Uninstall the installed packages to restore to before point
+            //Force uninstall pkgs already installed.
             System.out.println("Returning to restore point.");
-            for (SoftwarePackage pkg : installedDependencies){
-                uninstallPackage(pkg, installedDependencies);
-            }
+            installedPackages.removeAll(installedDependencies);  //equivalent to uninstall
+            installedDependencies.clear();
+            return false;
         }
+        return true;
     }
-    
+
+
+/*===== UNINSTALL PACKAGE ==============================*/
     @Override
     public void uninstallPackage(SoftwarePackage p) {
         //Creates a set of pkgs to uninstall, uninstalls all at once
@@ -142,7 +154,9 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
 
         return true;
     }
-    
+
+
+/*===== PACKAGE INSTALL STATE =====================*/
     @Override
     public boolean isPackageInstalled(SoftwarePackage p) {
         return installedPackages.contains(p);
