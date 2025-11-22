@@ -9,8 +9,8 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
         this.installer = installer;
     }
 
-    //Created instance variable for use in all methods
-    private Set<SoftwarePackage> installedPackages = new HashSet<>();
+    //Set of all installed packages
+    private Set<SoftwarePackage> installedPackages = new HashSet<>()
 
 
     @Override
@@ -61,18 +61,19 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
     
     @Override
     public void uninstallPackage(SoftwarePackage p) {
-        uninstallPackage(p, installedPackages);
+        Set<SoftwarePackage> packagesToUninstall = new HashSet<>();
+        uninstallPackage(p, packagesToUninstall, installedPackages);
+        installedPackages.removeAll(packagesToUninstall);
     }
     
-    private void uninstallPackage(SoftwarePackage p, Set<SoftwarePackage> installedSet) {
+    private void uninstallPackage(SoftwarePackage p, Set<SoftwarePackage> packagesToUninstall, Set<SoftwarePackage> installedPackages) {
         boolean isNeeded = false;
         
         try {
             //Check all installed packages to see if p is needed by any of them
-            for (SoftwarePackage pkg : installedSet) {
-                if (pkg.getDependencies() != null) {
-                    Set<SoftwarePackage> dependencies = pkg.getDependencies();
-                    if (dependencies.contains(p)) {
+            for (SoftwarePackage pkg : installedPackages) {
+                if (pkg.getDependencies() != null && !packagesToUninstall.contains(pkg)) {
+                    if (pkg.getDependencies().contains(p)) {
                         isNeeded = true;
                         System.out.println("Package " + p.getName() + " is needed for " + pkg.getName() + ".");
                         break;
@@ -82,13 +83,12 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
             
             //Remove p only if not a dependency in any other package.
             if (!isNeeded) {
-                installedSet.remove(p);
-                System.out.println(p.getName() + " has been uninstalled.");
+                packagesToUninstall.add(p);
 
                 //Check if p dependencies are exclusive to p, and can also be uninstalled
                 if (p.getDependencies() != null){
                     for (SoftwarePackage dependency : p.getDependencies()){
-                        uninstallPackage(dependency, installedSet);
+                        uninstallPackage(dependency, packagesToUninstall, installedPackages);
                     }
                 }
             }
