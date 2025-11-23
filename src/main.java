@@ -1,4 +1,4 @@
-//TEST MERGE RESOLUTION 1B
+//TEST commit RESOLUTION 1B
 
 public class main {
 
