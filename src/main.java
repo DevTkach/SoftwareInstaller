@@ -1,4 +1,4 @@
-//TEST MERGE RESOLUTION 1A
+//TEST MERGE RESOLUTION 1B
 
 public class main {
 
