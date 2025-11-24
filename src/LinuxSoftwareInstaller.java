@@ -28,12 +28,15 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
         Set<SoftwarePackage> visited, 
         Set<SoftwarePackage> installedDependencies
     ) {
+    	
+    	System.out.println("Attempting to install " + p.getName());
+    	
         //Checks if visited, stops infinite recursion
         if (visited.contains(p)) {
-            System.out.println("Circular dependency detected. Install failed.");
+            System.out.println("Circular dependency detected: " + p.getName());
+            System.out.println("Install failed. Returning to restore point.");
             
             //Force uninstall pkgs already installed.
-            System.out.println("Returning to restore point.");
             installedPackages.removeAll(installedDependencies);  //equivalent to uninstall
             installedDependencies.clear();
             return false;
@@ -41,31 +44,37 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
         
         visited.add(p);
         
-        //Check p.dependencies is not null
+        //Install dependencies
         if (p.getDependencies() != null){
             for (SoftwarePackage dependency : p.getDependencies()){
+            	System.out.println(p.getName() + " depends on: " + dependency.getName());
+            	
             	boolean success = installPackage(dependency, visited, installedDependencies);
             	if (!success) {
+            		System.out.println("Failed to install dependency: " + dependency.getName());
+            		System.out.println("Aborting installation of " + p.getName());
             		return false;
             	}
             }
         }
         
-        
         try {
             //Only installs if package is not installed.
             if (!installer.isPackageInstalled(p)) {
-            	System.out.println("Installing " + p.getName());
+            	System.out.println("Installing " + p.getName() + "...");
                 installer.installPackage(p);
                 System.out.println("Successfully installed " + p.getName());
+                
                 installedDependencies.add(p);
                 installedPackages.add(p);
+            } else {
+            	System.out.println(p.getName() + " is already installed.");
             }
         } catch (Exception e) {
-            System.out.println("Failed to install " + p.getName());
+            System.out.println("Failed to install " + p.getName() + ": " + e.getMessage());
+            System.out.println("Returning to restore point.");
             
             //Force uninstall pkgs already installed.
-            System.out.println("Returning to restore point.");
             installedPackages.removeAll(installedDependencies);  //equivalent to uninstall
             installedDependencies.clear();
             return false;

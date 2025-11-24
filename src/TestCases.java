@@ -61,7 +61,7 @@ public class TestCases {
     	//Check
     	boolean passed = before.equals(after);
     	
-    	System.out.println("Expected: no changes to installed packages.");
+    	System.out.println("Expected: No changes to installed packages.");
     	System.out.println("Result: " + (passed ? "PASS" : "FAIL"));
 
 	}
