@@ -3,25 +3,19 @@ import java.util.Set;
 
 public class TestCases {
 	
-	LinuxSoftwareInstaller testInstaller = new LinuxSoftwareInstaller(new DummyInstaller());
-	
-	//Test packages
-	SoftwarePackage circularA;
-	SoftwarePackage circularB;
+	private DummyInstaller dummy;
+	private LinuxSoftwareInstaller testInstaller;
 	
 	public TestCases() {
-		circularA = new SoftwarePackage("A", null, null, new HashSet<>());
-		circularB = new SoftwarePackage("B", null, null, new HashSet<>());
-		
-		circularA.getDependencies().add(circularB);
-		circularB.getDependencies().add(circularA);
+		dummy = new DummyInstaller();
+		testInstaller = new LinuxSoftwareInstaller(dummy);
 	}
 
 	
 	/*
 	 * === INSTALL TEST ===
-	 * Tries to install a package. 
-	 * Should add the package to installedPackages.
+	 * Attempts to install a package. 
+	 * Expected: Package should be added to installedPackages.
 	 */
 	public void testInstallPackage() {
 		
@@ -30,8 +24,8 @@ public class TestCases {
 	
 	/*
 	 * === UNINSTALL TEST ===
-	 * Tries to uninstall a package. 
-	 * Should remove the package from installedPackages.
+	 * Attemps to uninstall a package. 
+	 * Expected: Package should be removed from installedPackages.
 	 */
 	public void testUninstallPackage() {
 		
@@ -42,20 +36,26 @@ public class TestCases {
 	/*
 	 * === CIRCULAR DEPENDENCY INSTALL TEST ===
 	 * Attemps to install a package with a circular dependency.
-	 * Expected: install should fail and installedPackages remains unchanged.
+	 * Expected: Install should fail and installedPackages remains unchanged.
 	 */
 	public void testCircularInstall() {
 		System.out.println("=== CIRCULAR DEPENDENCY INSTALL TEST ===");
 		
+		SoftwarePackage circularA = makePackage("A");
+		SoftwarePackage circularB = makePackage("B");
+		
+		circularA.getDependencies().add(circularB);
+		circularB.getDependencies().add(circularA);
+		
 		//Before
-		Set<SoftwarePackage> before = testInstaller.getInstalledPackages();
+		Set<SoftwarePackage> before = new HashSet<>(testInstaller.getInstalledPackages());
 		System.out.println("Installed packages before install: " + before);
     	
 		//Test
     	testInstaller.installPackage(circularA);
     	
     	//After
-    	Set<SoftwarePackage>after = testInstaller.getInstalledPackages();
+    	Set<SoftwarePackage>after = new HashSet<>(testInstaller.getInstalledPackages());
     	System.out.println("Installed packages after install: " + after);
 
     	//Check
@@ -69,18 +69,19 @@ public class TestCases {
 	
 	/*
 	 * === CIRCULAR DEPENDENCY UNINSTALL TEST ===
-	 * Tries to uninstall a package with a circular dependency.
-	 * Should fail and revert to restore point.
+	 * Attempts to uninstall a package with a circular dependency.
+	 * Expected: Uninstall should fail and installedPackages remains unchanged.
 	 */
 	public void testCircularUninstall() {
-
+		System.out.println("=== CIRCULAR DEPENDENCY UNINSTALL TEST ===");
+		
 	}
 	
 	
 	/*
 	 * === FAILED INSTALL TEST ===
 	 * Fails to install a package.
-	 * Should not install and should revert to restore point.
+	 * Expected: Should not install and installedPackages remains unchanged.
 	 */
 	public void testFailedInstall() {
 		
@@ -90,10 +91,26 @@ public class TestCases {
 	/*
 	 * === FAILED UNINSTALL TEST ===
 	 * Fails to uninstall a package.
-	 * Should not uninstall and should revert to restore point.
+	 * Expected: Should not uninstall and installedPackages remains unchanged.
 	 */
 	public void testFailedUninstall() {
 		
+	}
+	
+	
+	/*
+	 * === ALREADY INSTALLED TEST ===
+	 * Attempts to install a package already installed.
+	 * Expected: Should not re-install and installed packages remains unchanged.
+	 */
+	public void testAlreadyInstalled() {
+		
+	}
+	
+	
+	//Construct test package
+	private SoftwarePackage makePackage(String name) {
+		return new SoftwarePackage(name, null, null, new HashSet<>());
 	}
 	
 	
