@@ -41,27 +41,28 @@ public class TestCases {
 	
 	/*
 	 * === CIRCULAR DEPENDENCY INSTALL TEST ===
-	 * Tries to install a package with a circular dependency.
-	 * Should fail and revert to restore point.
+	 * Attemps to install a package with a circular dependency.
+	 * Expected: install should fail and installedPackages remains unchanged.
 	 */
 	public void testCircularInstall() {
-
+		System.out.println("=== CIRCULAR DEPENDENCY INSTALL TEST ===");
+		
+		//Before
 		Set<SoftwarePackage> before = testInstaller.getInstalledPackages();
-		Set<SoftwarePackage> after;
-		
-    	System.out.println("===== TEST CIRCULAR DEPENDENCY =====");
-    	testInstaller.installPackage(circularA);
-    	System.out.println("Installed packages before: " + before);
+		System.out.println("Installed packages before install: " + before);
     	
-		testInstaller.uninstallPackage(circularA);
-		
-		after = testInstaller.getInstalledPackages();
-    	System.out.println("Installed packages after: " + after);
-		if (before.equals(after)) {
-			System.out.println("SUCCESS");
-		} else {
-			System.out.println("FAILURE");
-		}
+		//Test
+    	testInstaller.installPackage(circularA);
+    	
+    	//After
+    	Set<SoftwarePackage>after = testInstaller.getInstalledPackages();
+    	System.out.println("Installed packages after install: " + after);
+
+    	//Check
+    	boolean passed = before.equals(after);
+    	
+    	System.out.println("Expected: no changes to installed packages.");
+    	System.out.println("Result: " + (passed ? "PASS" : "FAIL"));
 
 	}
 	
@@ -71,7 +72,7 @@ public class TestCases {
 	 * Tries to uninstall a package with a circular dependency.
 	 * Should fail and revert to restore point.
 	 */
-	public void testCircularUnnstall() {
+	public void testCircularUninstall() {
 
 	}
 	
