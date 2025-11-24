@@ -1,10 +1,46 @@
+import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.Set;
+
 public class main {
+    public static void main(String[] args) {
 
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+        // Create dummy installer
+        OperatingSystemInstaller testInstaller = new TestInstaller();
 
-	}
+        // Create your Linux installer with the dummy as the underlying installer
+        LinuxSoftwareInstaller linuxInstaller = new LinuxSoftwareInstaller(testInstaller);
 
+        // Create some packages
+        SoftwarePackage libA = new SoftwarePackage(
+            "LibA", 
+            Path.of("/tmp/libA"), 
+            "Library A", 
+            new HashSet<>()
+        );
+
+        SoftwarePackage libB = new SoftwarePackage(
+            "LibB",
+            Path.of("/tmp/libB"),
+            "Library B",
+            Set.of(libA)    // libB depends on libA
+        );
+
+        SoftwarePackage app = new SoftwarePackage(
+            "App",
+            Path.of("/tmp/app"),
+            "Main application",
+            Set.of(libB)    // app depends on libB -> libA
+        );
+
+        // Test install
+        System.out.println("\n=== Installing App ===");
+        linuxInstaller.installPackage(app);
+
+        // Test uninstall
+        System.out.println("\n=== Uninstalling App ===");
+        linuxInstaller.uninstallPackage(app);
+    }
 }
 
 /* 
