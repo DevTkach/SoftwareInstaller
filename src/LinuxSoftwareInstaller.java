@@ -76,14 +76,10 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
         //Creates a set of pkgs to uninstall, uninstalls all at once
         Set<SoftwarePackage> packagesToUninstall = new HashSet<>();
 
-        //Creates a visited set to protect against infinite recursion
-        Set<SoftwarePackage> visited = new HashSet<>();
-
         //Proceeds only if there are no errors
         boolean success = uninstallPackage(
             p, 
-            packagesToUninstall, 
-            visited, 
+            packagesToUninstall,
             installedPackages
         );
 
@@ -97,51 +93,50 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
     private boolean uninstallPackage(
         SoftwarePackage p, 
         Set<SoftwarePackage> packagesToUninstall, 
-        Set<SoftwarePackage> visited, 
         Set<SoftwarePackage> installedPackages
     ) {
         
-        //If already visited, infinite recursion detected, abort and rollback
-        if(visited.contains(p)){
-            System.out.println("Circular dependency detected. Uninstall failed.");
-            return false;
-        }
-
-        visited.add(p);
-
-        //Tracks shared dependencies
-        boolean isNeeded = false;
-        
         try {
-            //Check all installed packages to see if p is needed by any of them
+        	//If p already in queue to uninstall, continue
+        	if (packagesToUninstall.contains(p)) {
+        		return true;
+        	}
+        	
+        	//p in the queue to be uninstalled.
+        	packagesToUninstall.add(p);
+        	
+        	//Check all installed packages to see if p is needed by any of them
             for (SoftwarePackage pkg : installedPackages) {
-                if (pkg.getDependencies() != null && 
-                    !packagesToUninstall.contains(pkg) &&
-                    pkg.getDependencies().contains(p)) 
-                {
-                    isNeeded = true;
-                    break;
-                }
+             	//Skips packages already on the uninstall list
+            	if (packagesToUninstall.contains(pkg)) {
+            		continue;  
+            	}
+            	
+            	//If p is needed by another package, uninstall will fail.
+            	if (pkg.getDependencies() != null &&
+            	    pkg.getDependencies().contains(p)) {
+            		return false;
+            	}
             }
             
-            //Remove p only if not a dependency in any other package.
-            if (!isNeeded) {
-                packagesToUninstall.add(p);
-
-                //Check if p dependencies are exclusive to p, and can also be uninstalled
-                if (p.getDependencies() != null){
-                    for (SoftwarePackage dependency : p.getDependencies()){
-                        boolean success = uninstallPackage(
-                            dependency, 
-                            packagesToUninstall, 
-                            visited, 
-                            installedPackages
-                        );
-
-                        if (!success){
-                            return false;
-                        }
-                    }
+            //Attempt to uninstall dependencies exclusive to p
+            if (p.getDependencies() != null){
+            	for (SoftwarePackage dependency : p.getDependencies()){
+            		//If dependency already in queue to uninstall, continue
+                	if (packagesToUninstall.contains(dependency)) {
+                		continue;
+                	}
+                	
+                	//Removes packages only p needed.
+            		boolean success = uninstallPackage(
+            			dependency, 
+            			packagesToUninstall, 
+            			installedPackages
+            		);
+            		
+            		if (!success){
+            			return false;
+            		}
                 }
             }
         } catch (Exception e){
