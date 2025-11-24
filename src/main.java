@@ -8,7 +8,7 @@ public class main {
     	TestCases tests = new TestCases();
     	
 
-    	tests.testCircularDependency();
+    	tests.testCircularInstall();
 
 
     }

@@ -44,7 +44,10 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
         //Check p.dependencies is not null
         if (p.getDependencies() != null){
             for (SoftwarePackage dependency : p.getDependencies()){
-                installPackage(dependency, visited, installedDependencies);
+            	boolean success = installPackage(dependency, visited, installedDependencies);
+            	if (!success) {
+            		return false;
+            	}
             }
         }
         
@@ -52,6 +55,7 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
         try {
             //Only installs if package is not installed.
             if (!installer.isPackageInstalled(p)) {
+            	System.out.println("Installing " + p.getName());
                 installer.installPackage(p);
                 System.out.println("Successfully installed " + p.getName());
                 installedDependencies.add(p);
