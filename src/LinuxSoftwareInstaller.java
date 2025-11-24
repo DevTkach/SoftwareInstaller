@@ -86,7 +86,6 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
 
         if (success){
             installedPackages.removeAll(packagesToUninstall);
-            System.out.println("Successfully uninstalled " + p.getName() + " and all unneeded dependencies.");
         } else {
             System.out.println("Uninstall failed, no changes made.");
         }

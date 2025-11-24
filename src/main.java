@@ -7,8 +7,10 @@ public class main {
     	
     	TestCases tests = new TestCases();
     	
-
+    	tests.testInstallPackage();
+    	tests.testUninstallPackage();
     	tests.testCircularInstall();
+    	tests.testAlreadyInstalled();
 
 
     }

@@ -1,4 +1,6 @@
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class TestCases {
@@ -18,7 +20,27 @@ public class TestCases {
 	 * Expected: Package should be added to installedPackages.
 	 */
 	public void testInstallPackage() {
+		System.out.println("=== INSTALL TEST ===");
 		
+		SoftwarePackage testA = makePackage("A");
+		
+		//Before
+		Set<SoftwarePackage> before = new HashSet<>(testInstaller.getInstalledPackages());
+		System.out.println("Installed packages before: " + nameList(before));
+    	
+		//Test
+    	testInstaller.installPackage(testA);
+    	
+    	//After
+    	Set<SoftwarePackage>after = new HashSet<>(testInstaller.getInstalledPackages());
+    	System.out.println("Installed packages after: " + nameList(after));
+		
+		//Check
+    	boolean passed = !before.contains(testA) && after.contains(testA);
+    	
+    	System.out.println("Expected: " + testA.getName() + " is added to installed packages.");
+    	System.out.println("Result: " + (passed ? "PASS" : "FAIL"));
+    	System.out.println();		
 	}
 	
 	
@@ -28,7 +50,28 @@ public class TestCases {
 	 * Expected: Package should be removed from installedPackages.
 	 */
 	public void testUninstallPackage() {
+		System.out.println("=== UNINSTALL TEST ===");
+	
+		SoftwarePackage testA = makePackage("A");
+    	testInstaller.installPackage(testA);
 		
+		//Before
+		Set<SoftwarePackage> before = new HashSet<>(testInstaller.getInstalledPackages());
+		System.out.println("Installed packages before: " + nameList(before));
+    	
+		//Test
+		testInstaller.uninstallPackage(testA);
+    	
+    	//After
+    	Set<SoftwarePackage>after = new HashSet<>(testInstaller.getInstalledPackages());
+    	System.out.println("Installed packages after: " + nameList(after));
+		
+		//Check
+    	boolean passed = before.contains(testA) && !after.contains(testA);
+    	
+    	System.out.println("Expected: " + testA.getName() + " is removed from installed packages.");
+    	System.out.println("Result: " + (passed ? "PASS" : "FAIL"));
+    	System.out.println();		
 	}
 	
 	
@@ -49,21 +92,21 @@ public class TestCases {
 		
 		//Before
 		Set<SoftwarePackage> before = new HashSet<>(testInstaller.getInstalledPackages());
-		System.out.println("Installed packages before install: " + before);
+		System.out.println("Installed packages before: " + nameList(before));
     	
 		//Test
     	testInstaller.installPackage(circularA);
     	
     	//After
     	Set<SoftwarePackage>after = new HashSet<>(testInstaller.getInstalledPackages());
-    	System.out.println("Installed packages after install: " + after);
+    	System.out.println("Installed packages after: " + nameList(after));
 
     	//Check
     	boolean passed = before.equals(after);
     	
     	System.out.println("Expected: No changes to installed packages.");
     	System.out.println("Result: " + (passed ? "PASS" : "FAIL"));
-
+    	System.out.println();
 	}
 	
 	
@@ -84,6 +127,7 @@ public class TestCases {
 	 * Expected: Should not install and installedPackages remains unchanged.
 	 */
 	public void testFailedInstall() {
+		System.out.println("=== FAILED INSTALL TEST ===");
 		
 	}
 	
@@ -94,6 +138,7 @@ public class TestCases {
 	 * Expected: Should not uninstall and installedPackages remains unchanged.
 	 */
 	public void testFailedUninstall() {
+		System.out.println("=== FAILED UNINSTALL TEST ===");
 		
 	}
 	
@@ -104,13 +149,43 @@ public class TestCases {
 	 * Expected: Should not re-install and installed packages remains unchanged.
 	 */
 	public void testAlreadyInstalled() {
+		System.out.println("=== ALREADY INSTALLED TEST ===");
+	
+		SoftwarePackage testA = makePackage("A");
+    	testInstaller.installPackage(testA);
 		
+		//Before
+		Set<SoftwarePackage> before = new HashSet<>(testInstaller.getInstalledPackages());
+		System.out.println("Installed packages before: " + nameList(before));
+    	
+		//Test
+    	testInstaller.installPackage(testA);
+    	
+    	//After
+    	Set<SoftwarePackage>after = new HashSet<>(testInstaller.getInstalledPackages());
+    	System.out.println("Installed packages after: " + nameList(after));
+		
+		//Check
+    	boolean passed = before.equals(after);
+    	
+    	System.out.println("Expected: No changes to installed packages.");
+    	System.out.println("Result: " + (passed ? "PASS" : "FAIL"));
+    	System.out.println();
 	}
 	
 	
-	//Construct test package
+	//Creates test package
 	private SoftwarePackage makePackage(String name) {
 		return new SoftwarePackage(name, null, null, new HashSet<>());
+	}
+	
+	//Convert HashSet to List to print pkg names
+	private static List<String> nameList(Set<SoftwarePackage> set){
+		List<String> names = new ArrayList<>();
+		for (SoftwarePackage p : set) {
+			names.add(p.getName());
+		}
+		return names;
 	}
 	
 	
