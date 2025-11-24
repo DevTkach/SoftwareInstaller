@@ -1,5 +1,5 @@
 
-public class TestInstaller implements OperatingSystemInstaller {
+public class DummyInstaller implements OperatingSystemInstaller {
 
 	@Override
 	public void installPackage(SoftwarePackage p) {
