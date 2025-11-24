@@ -4,6 +4,12 @@ import java.util.Set;
 
 public class main {
     public static void main(String[] args) {
+    	
+    	TestCases tests = new TestCases();
+    	
+
+    	tests.testCircularDependency();
+
 
     }
 }

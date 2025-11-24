@@ -161,7 +161,13 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
     public boolean isPackageInstalled(SoftwarePackage p) {
         return installedPackages.contains(p);
     }
-}
 
+
+/*===== GET INSTALLED PACKAGES =====*/
+	public Set<SoftwarePackage> getInstalledPackages(){
+		return new HashSet<>(installedPackages);
+	}
+	
+}
  
 
