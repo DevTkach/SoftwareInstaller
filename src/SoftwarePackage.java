@@ -27,4 +27,19 @@ class SoftwarePackage {
 	public Set<SoftwarePackage> getDependencies() { 
 		return this.dependencies; 
 	} 
+	
+	@Override
+	public boolean equals(Object obj) {
+	    if (this == obj) return true;
+	    if (obj == null || getClass() != obj.getClass()) return false;
+	    SoftwarePackage other = (SoftwarePackage) obj;
+	    return name != null && name.equals(other.name);
+	}
+	
+	@Override
+	public int hashCode() {
+	    return name == null ? 0 : name.hashCode();
+	}
+
+
 } 
