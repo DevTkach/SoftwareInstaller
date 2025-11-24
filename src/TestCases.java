@@ -117,7 +117,33 @@ public class TestCases {
 	 */
 	public void testCircularUninstall() {
 		System.out.println("=== CIRCULAR DEPENDENCY UNINSTALL TEST ===");
+	
+		SoftwarePackage circularA = makePackage("A");
+		SoftwarePackage circularB = makePackage("B");
 		
+		testInstaller.installPackage(circularA);
+		testInstaller.installPackage(circularB);
+		
+		circularA.getDependencies().add(circularB);
+		circularB.getDependencies().add(circularA);
+		
+		//Before
+		Set<SoftwarePackage> before = new HashSet<>(testInstaller.getInstalledPackages());
+		System.out.println("Installed packages before: " + nameList(before));
+    	
+		//Test
+    	testInstaller.uninstallPackage(circularA);
+    	
+    	//After
+    	Set<SoftwarePackage>after = new HashSet<>(testInstaller.getInstalledPackages());
+    	System.out.println("Installed packages after: " + nameList(after));
+
+    	//Check
+    	boolean passed = before.equals(after);
+    	
+    	System.out.println("Expected: No changes to installed packages.");
+    	System.out.println("Result: " + (passed ? "PASS" : "FAIL"));
+    	System.out.println();
 	}
 	
 	

@@ -30,7 +30,9 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
     ) {
     	  	
         //Checks if visited, stops infinite recursion
-        if (visited.contains(p)) {        
+        if (visited.contains(p)) {
+            System.out.println("Circular dependency detected. Install failed.");
+            
             //Roll back: force uninstall pkgs already installed.
             installedPackages.removeAll(installedDependencies);  //equivalent to uninstall
             installedDependencies.clear();
@@ -59,6 +61,7 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
             }
         } catch (Exception e) {
             //Roll back: force uninstall pkgs already installed.
+            System.out.println("Installation failed.");
             installedPackages.removeAll(installedDependencies);  //equivalent to uninstall
             installedDependencies.clear();
             return false;
@@ -117,7 +120,6 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
                     pkg.getDependencies().contains(p)) 
                 {
                     isNeeded = true;
-                    System.out.println("Package " + p.getName() + " is needed for " + pkg.getName() + ".");
                     break;
                 }
             }
@@ -152,14 +154,14 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
     }
 
 
-/*===== PACKAGE INSTALL STATE =====================*/
+    /*===== PACKAGE INSTALL STATE =====================*/
     @Override
     public boolean isPackageInstalled(SoftwarePackage p) {
         return installedPackages.contains(p);
     }
 
 
-/*===== GET INSTALLED PACKAGES =====*/
+    /*===== GET INSTALLED PACKAGES =====*/
 	public Set<SoftwarePackage> getInstalledPackages(){
 		return new HashSet<>(installedPackages);
 	}
