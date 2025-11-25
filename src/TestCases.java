@@ -5,15 +5,6 @@ import java.util.Set;
 
 public class TestCases {
 	
-	private DummyInstaller dummy;
-	private LinuxSoftwareInstaller testInstaller;
-	
-	public TestCases() {
-		dummy = new DummyInstaller();
-		testInstaller = new LinuxSoftwareInstaller(dummy);
-	}
-
-	
 	/*
 	 * === TEST: INSTALL ===
 	 * Attempts to install a package. 
@@ -21,6 +12,9 @@ public class TestCases {
 	 */
 	public void testInstallPackage() {
 		System.out.println("=== TEST: INSTALL ===");
+		
+		DummyInstaller dummy = new DummyInstaller();
+		LinuxSoftwareInstaller testInstaller = new LinuxSoftwareInstaller(dummy);
 		
 		SoftwarePackage testA = makePackage("A");
 		
@@ -52,24 +46,27 @@ public class TestCases {
 	public void testUninstallPackage() {
 		System.out.println("=== TEST: UNINSTALL ===");
 	
-		SoftwarePackage testA = makePackage("A");
-    	testInstaller.installPackage(testA);
+		DummyInstaller dummy = new DummyInstaller();
+		LinuxSoftwareInstaller testInstaller = new LinuxSoftwareInstaller(dummy);
+
+		SoftwarePackage testB = makePackage("B");
+    	testInstaller.installPackage(testB);
 		
 		//Before
 		Set<SoftwarePackage> before = new HashSet<>(testInstaller.getInstalledPackages());
 		System.out.println("Installed packages before: " + nameList(before));
     	
 		//Test
-		testInstaller.uninstallPackage(testA);
+		testInstaller.uninstallPackage(testB);
     	
     	//After
     	Set<SoftwarePackage>after = new HashSet<>(testInstaller.getInstalledPackages());
     	System.out.println("Installed packages after: " + nameList(after));
 		
 		//Check
-    	boolean passed = before.contains(testA) && !after.contains(testA);
+    	boolean passed = before.contains(testB) && !after.contains(testB);
     	
-    	System.out.println("Expected: " + testA.getName() + " is removed from installed packages.");
+    	System.out.println("Expected: " + testB.getName() + " is removed from installed packages.");
     	System.out.println("Result: " + (passed ? "PASS" : "FAIL"));
     	System.out.println();		
 	}
@@ -84,18 +81,21 @@ public class TestCases {
 	public void testCircularInstall() {
 		System.out.println("=== TEST: CIRCULAR DEPENDENCY INSTALL ===");
 		
-		SoftwarePackage circularA = makePackage("A");
-		SoftwarePackage circularB = makePackage("B");
+		DummyInstaller dummy = new DummyInstaller();
+		LinuxSoftwareInstaller testInstaller = new LinuxSoftwareInstaller(dummy);
+
+		SoftwarePackage circularC = makePackage("C");
+		SoftwarePackage circularD = makePackage("D");
 		
-		circularA.getDependencies().add(circularB);
-		circularB.getDependencies().add(circularA);
+		circularC.getDependencies().add(circularD);
+		circularD.getDependencies().add(circularC);
 		
 		//Before
 		Set<SoftwarePackage> before = new HashSet<>(testInstaller.getInstalledPackages());
 		System.out.println("Installed packages before: " + nameList(before));
     	
 		//Test
-    	testInstaller.installPackage(circularA);
+    	testInstaller.installPackage(circularC);
     	
     	//After
     	Set<SoftwarePackage>after = new HashSet<>(testInstaller.getInstalledPackages());
@@ -118,24 +118,27 @@ public class TestCases {
 	public void testDepBlockedUninstall() {
 		System.out.println("=== TEST: DEPENDENCY BLOCKED UNINSTALL ===");
 	
-		SoftwarePackage circularA = makePackage("A");
-		SoftwarePackage circularB = makePackage("B");
-		SoftwarePackage circularC = makePackage("C");
+		DummyInstaller dummy = new DummyInstaller();
+		LinuxSoftwareInstaller testInstaller = new LinuxSoftwareInstaller(dummy);
+
+		SoftwarePackage circularE = makePackage("E");
+		SoftwarePackage circularF = makePackage("F");
+		SoftwarePackage circularG = makePackage("G");
 		
-		testInstaller.installPackage(circularA);
-		testInstaller.installPackage(circularB);
-		testInstaller.installPackage(circularC);
+		testInstaller.installPackage(circularE);
+		testInstaller.installPackage(circularF);
+		testInstaller.installPackage(circularG);
 		
-		circularA.getDependencies().add(circularB);
-		circularB.getDependencies().add(circularA);
-		circularC.getDependencies().add(circularA);
+		circularE.getDependencies().add(circularF);
+		circularF.getDependencies().add(circularE);
+		circularG.getDependencies().add(circularE);
 		
 		//Before
 		Set<SoftwarePackage> before = new HashSet<>(testInstaller.getInstalledPackages());
 		System.out.println("Installed packages before: " + nameList(before));
     	
 		//Test
-    	testInstaller.uninstallPackage(circularA);
+    	testInstaller.uninstallPackage(circularE);
     	
     	//After
     	Set<SoftwarePackage>after = new HashSet<>(testInstaller.getInstalledPackages());
@@ -157,7 +160,7 @@ public class TestCases {
 	 */
 	public void testFailedInstall() {
 		System.out.println("=== TEST: FAILED INSTALL ===");
-		
+		//TODO
 	}
 	
 	
@@ -168,7 +171,7 @@ public class TestCases {
 	 */
 	public void testFailedUninstall() {
 		System.out.println("=== TEST: FAILED UNINSTALL ===");
-		
+		//TODO
 	}
 	
 	
@@ -180,15 +183,21 @@ public class TestCases {
 	public void testAlreadyInstalled() {
 		System.out.println("=== TEST: ALREADY INSTALLED ===");
 	
-		SoftwarePackage testA = makePackage("A");
-    	testInstaller.installPackage(testA);
+		DummyInstaller dummy = new DummyInstaller();
+		LinuxSoftwareInstaller testInstaller = new LinuxSoftwareInstaller(dummy);
+
+		SoftwarePackage testH = makePackage("H");
+		SoftwarePackage testJ = makePackage("J");
+		
+    	testInstaller.installPackage(testH);
+    	testInstaller.installPackage(testJ);
 		
 		//Before
 		Set<SoftwarePackage> before = new HashSet<>(testInstaller.getInstalledPackages());
 		System.out.println("Installed packages before: " + nameList(before));
     	
 		//Test
-    	testInstaller.installPackage(testA);
+    	testInstaller.installPackage(testH);
     	
     	//After
     	Set<SoftwarePackage>after = new HashSet<>(testInstaller.getInstalledPackages());
