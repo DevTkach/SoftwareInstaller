@@ -111,12 +111,12 @@ public class TestCases {
 	
 	
 	/*
-	 * === TEST: CIRCULAR DEPENDENCY UNINSTALL ===
+	 * === TEST: DEPENDENCY BLOCKED UNINSTALL ===
 	 * Attempts to uninstall a package with a circular dependency.
 	 * Expected: Uninstall should fail and installedPackages remains unchanged.
 	 */
-	public void testCircularUninstall() {
-		System.out.println("=== TEST: CIRCULAR DEPENDENCY UNINSTALL ===");
+	public void testDepBlockedUninstall() {
+		System.out.println("=== TEST: DEPENDENCY BLOCKED UNINSTALL ===");
 	
 		SoftwarePackage circularA = makePackage("A");
 		SoftwarePackage circularB = makePackage("B");

@@ -13,7 +13,7 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
     private Set<SoftwarePackage> installedPackages = new HashSet<>();
     
 
-/*===== INSTALL PACKAGE ============================*/
+    // === INSTALL PACKAGE ===
     @Override
     public void installPackage(SoftwarePackage p) {
         installPackage(
@@ -70,7 +70,7 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
     }
 
 
-/*===== UNINSTALL PACKAGE ==============================*/
+    // === UNINSTALL PACKAGE ===
     @Override
     public void uninstallPackage(SoftwarePackage p) {
         //Creates a set of pkgs to uninstall, uninstalls all at once
@@ -86,7 +86,7 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
         if (success){
             installedPackages.removeAll(packagesToUninstall);
         } else {
-            System.out.println("Uninstall failed, no changes made.");
+            System.out.println("Uninstall failed. No changes made.");
         }
     }
     
@@ -115,6 +115,7 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
             	//If p is needed by another package, uninstall will fail.
             	if (pkg.getDependencies() != null &&
             	    pkg.getDependencies().contains(p)) {
+            		System.out.println("Uninstall blocked: " + p.getName() + " is needed by " + pkg.getName() + ".");
             		return false;
             	}
             }
@@ -141,7 +142,7 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
             }
         } catch (Exception e){
             //If any error, uninstall nothing (revert to restore point).
-            System.out.println("Uninstall failed.");
+            System.out.println("Uninstall failed. Error: " + e.getMessage());
             return false;
         }
 
@@ -149,14 +150,14 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
     }
 
 
-    /*===== PACKAGE INSTALL STATE =====================*/
+    // === PACKAGE INSTALL STATE ===
     @Override
     public boolean isPackageInstalled(SoftwarePackage p) {
         return installedPackages.contains(p);
     }
 
 
-    /*===== GET INSTALLED PACKAGES =====*/
+    // === GET INSTALLED PACKAGES ===
 	public Set<SoftwarePackage> getInstalledPackages(){
 		return new HashSet<>(installedPackages);
 	}

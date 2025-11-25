@@ -10,7 +10,7 @@ public class main {
     	tests.testInstallPackage();
     	tests.testUninstallPackage();
     	tests.testCircularInstall();
-    	tests.testCircularUninstall();
+    	tests.testDepBlockedUninstall();
     	tests.testAlreadyInstalled();
 
 
