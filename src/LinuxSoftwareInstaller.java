@@ -16,6 +16,10 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
     // === INSTALL PACKAGE ===
     @Override
     public void installPackage(SoftwarePackage p) {
+    	if (installedPackages.contains(p)) {
+    		System.out.println(p.getName() + " is already installed.");
+    		return;
+    	}
         installPackage(
             p, 
             new HashSet<SoftwarePackage>(), 
