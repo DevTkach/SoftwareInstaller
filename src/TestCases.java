@@ -32,8 +32,8 @@ public class TestCases {
 		//Check
     	boolean passed = !before.contains(testA) && after.contains(testA);
     	
-    	System.out.println("Expected: " + testA.getName() + " is added to installed packages.");
-    	System.out.println("Result: " + (passed ? "PASS" : "FAIL"));
+    	System.out.println("\nExpected: " + testA.getName() + " is added to installed packages.");
+    	System.out.println("Result: " + (passed ? "PASS\n" : "FAIL\n"));
     	System.out.println();		
 	}
 	
@@ -66,8 +66,8 @@ public class TestCases {
 		//Check
     	boolean passed = before.contains(testB) && !after.contains(testB);
     	
-    	System.out.println("Expected: " + testB.getName() + " is removed from installed packages.");
-    	System.out.println("Result: " + (passed ? "PASS" : "FAIL"));
+    	System.out.println("\nExpected: " + testB.getName() + " is removed from installed packages.");
+    	System.out.println("Result: " + (passed ? "PASS\n" : "FAIL\n"));
     	System.out.println();		
 	}
 	
@@ -104,8 +104,8 @@ public class TestCases {
     	//Check
     	boolean passed = before.equals(after);
     	
-    	System.out.println("Expected: No changes to installed packages.");
-    	System.out.println("Result: " + (passed ? "PASS" : "FAIL"));
+    	System.out.println("\nExpected: No changes to installed packages.");
+    	System.out.println("Result: " + (passed ? "PASS\n" : "FAIL\n"));
     	System.out.println();
 	}
 	
@@ -147,8 +147,8 @@ public class TestCases {
     	//Check
     	boolean passed = before.equals(after);
     	
-    	System.out.println("Expected: No changes to installed packages.");
-    	System.out.println("Result: " + (passed ? "PASS" : "FAIL"));
+    	System.out.println("\nExpected: No changes to installed packages.");
+    	System.out.println("Result: " + (passed ? "PASS\n" : "FAIL\n"));
     	System.out.println();
 	}
 	
@@ -206,8 +206,8 @@ public class TestCases {
 		//Check
     	boolean passed = before.equals(after);
     	
-    	System.out.println("Expected: No changes to installed packages.");
-    	System.out.println("Result: " + (passed ? "PASS" : "FAIL"));
+    	System.out.println("\nExpected: No changes to installed packages.");
+    	System.out.println("Result: " + (passed ? "PASS\n" : "FAIL\n"));
     	System.out.println();
 	}
 	

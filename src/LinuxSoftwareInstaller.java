@@ -17,14 +17,21 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
     @Override
     public void installPackage(SoftwarePackage p) {
     	if (installedPackages.contains(p)) {
-    		System.out.println(p.getName() + " is already installed.");
+    		System.out.println("Install blocked: " + p.getName() + " is already installed.");
     		return;
     	}
-        installPackage(
+    	
+    	boolean success = installPackage(
             p, 
             new HashSet<SoftwarePackage>(), 
             new HashSet<SoftwarePackage>()
         );
+    	
+    	if (success) {
+    		System.out.println("Installed " + p.getName() + " successfully.");
+    	} else {
+    		System.out.println("Install failed.");
+    	}
     }
     
     private boolean installPackage(
@@ -35,7 +42,7 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
     	  	
         //Checks if visited, stops infinite recursion
         if (visited.contains(p)) {
-            System.out.println("Circular dependency detected. Install failed.");
+            System.out.println("Install blocked: Circular dependency detected.");
             
             //Roll back: force uninstall pkgs already installed.
             installedPackages.removeAll(installedDependencies);  //equivalent to uninstall
@@ -65,7 +72,7 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
             }
         } catch (Exception e) {
             //Roll back: force uninstall pkgs already installed.
-            System.out.println("Installation failed.");
+            System.out.println("Install failed.");
             installedPackages.removeAll(installedDependencies);  //equivalent to uninstall
             installedDependencies.clear();
             return false;
@@ -77,6 +84,11 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
     // === UNINSTALL PACKAGE ===
     @Override
     public void uninstallPackage(SoftwarePackage p) {
+    	if (!installedPackages.contains(p)) {
+    		System.out.println(p.getName() + " is not installed.");
+    		return;
+    	}
+    	
         //Creates a set of pkgs to uninstall, uninstalls all at once
         Set<SoftwarePackage> packagesToUninstall = new HashSet<>();
 
@@ -89,6 +101,7 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
 
         if (success){
             installedPackages.removeAll(packagesToUninstall);
+            System.out.println("Uninstalled " + p.getName() + " successfully.");
         } else {
             System.out.println("Uninstall failed. No changes made.");
         }
