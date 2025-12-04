@@ -11,7 +11,10 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
 
     //Set of all installed packages
     private Set<SoftwarePackage> installedPackages = new HashSet<>();
-    
+
+	//Tracks a set of packages that depend on a certain package
+	private Map<SoftwarePackage, Set<SoftwarePackage>> reverseDependencies = new HashMap<>();
+	
 
     // === INSTALL PACKAGE ===
     @Override
