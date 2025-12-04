@@ -96,15 +96,18 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
         Set<SoftwarePackage> packagesToUninstall = new HashSet<>();
 
         //Proceeds only if there are no errors
-        boolean success = uninstallPackage(
-            p, 
-            packagesToUninstall,
-            installedPackages
-        );
+        boolean success = uninstallPackage(p, packagesToUninstall);
 
         if (success){
             installedPackages.removeAll(packagesToUninstall);
+
+			//Update reverseDependencies list
+			for (SoftwarePackage removed : packagesToUninstall) {
+				reverseDependencies.remove(removed);
+			}
+			
             System.out.println("Uninstalled " + p.getName() + " successfully.");
+			
         } else {
             System.out.println("Uninstall failed. No changes made.");
         }
@@ -113,7 +116,6 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
     private boolean uninstallPackage(
         SoftwarePackage p, 
         Set<SoftwarePackage> packagesToUninstall, 
-        Set<SoftwarePackage> installedPackages
     ) {
         
         try {
@@ -124,21 +126,19 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
         	
         	//p in the queue to be uninstalled.
         	packagesToUninstall.add(p);
-        	
-        	//Check all installed packages to see if p is needed by any of them
-            for (SoftwarePackage pkg : installedPackages) {
-             	//Skips packages already on the uninstall list
-            	if (packagesToUninstall.contains(pkg)) {
-            		continue;  
-            	}
-            	
-            	//If p is needed by another package, uninstall will fail.
-            	if (pkg.getDependencies() != null &&
-            	    pkg.getDependencies().contains(p)) {
-            		System.out.println("Uninstall blocked: " + p.getName() + " is needed by " + pkg.getName() + ".");
-            		return false;
-            	}
-            }
+
+			//Gets packages that depend on p, replaces iterating over installedPackages.
+			Set<SoftwarePackage> dependents = reverseDependencies.get(p);
+
+			//If packages depend on p, those packages must be in packagesToUninstall, otherwise it will block.
+			if (dependents != null){
+				for (SoftwarePackage dependent : dependents) {
+					if(!packagesToUninstall.contains(dependent)){
+						System.out.println("Uninstall blocked: " + p.getName() + " is needed by " + dependent.getName() + ".");
+						return false;
+					}
+				}
+			}
             
             //Attempt to uninstall dependencies exclusive to p
             if (p.getDependencies() != null){
@@ -152,7 +152,6 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
             		boolean success = uninstallPackage(
             			dependency, 
             			packagesToUninstall, 
-            			installedPackages
             		);
             		
             		if (!success){
@@ -160,6 +159,7 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
             		}
                 }
             }
+			
         } catch (Exception e){
             //If any error, uninstall nothing (revert to restore point).
             System.out.println("Uninstall failed. Error: " + e.getMessage());
