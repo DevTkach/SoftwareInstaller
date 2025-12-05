@@ -96,14 +96,24 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
         Set<SoftwarePackage> packagesToUninstall = new HashSet<>();
 
         //Proceeds only if there are no errors
-        boolean success = uninstallPackage(p, packagesToUninstall);
+        boolean success = uninstallPackage(
+			p, 
+			packagesToUninstall,
+			installedPackages
+		);
 
         if (success){
-            installedPackages.removeAll(packagesToUninstall);
+			for (SoftwarePackage pkg : packagesToUninstall) {
+				//Remove from packages to uninstall set
+				installedPackages.remove(pkg);
 
-			//Update reverseDependencies list
-			for (SoftwarePackage removed : packagesToUninstall) {
-				reverseDependencies.remove(removed);
+				//Remove from reverse dependency map
+				reverseDependencies.remove(pkg);
+
+				//Remove from other pkgs reverse dependencies
+				for (Set<SoftwarePackage> dependers : reverseDependencies.values()){
+					dependers.remove(pkg);
+				}
 			}
 			
             System.out.println("Uninstalled " + p.getName() + " successfully.");
@@ -152,6 +162,7 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
             		boolean success = uninstallPackage(
             			dependency, 
             			packagesToUninstall, 
+						installedPackages
             		);
             		
             		if (!success){
