@@ -141,7 +141,7 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
             
             //Attempt to uninstall dependencies exclusive to p
 			for(SoftwarePackage dependent : p.getDependencies()){
-				packagesToUninstall = uninstallDep(dependent, packagesToUninstall);
+				uninstallDep(dependent, packagesToUninstall);
 			}
 			
         } catch (Exception e){
@@ -155,26 +155,23 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
 
 	// === UNINSTALL A DEPENDENT PACKAGE ===
 	private Set<SoftwarePackage> uninstallDep(SoftwarePackage dep, Set<SoftwarePackage> packagesToUninstall) {
-		if (dep.getDependencies() != null){
-			for (SoftwarePackage dependency : dep.getDependencies()){
-				//If dependency already in queue to uninstall, continue
-				if (packagesToUninstall.contains(dependency)) {
-					continue;
+			//Dep can be removed only if all values in reverseDeps are in packagesToUninstall
+			boolean canUninstall = true;
+			Set<SoftwarePackage> dependents = reverseDependencies.get(dep);
+			for (SoftwarePackage d : dependents){
+				if (!packagesToUninstall.contains(d)){
+					canUninstall = false;
+					break;
 				}
-	
-				//Dependency can be removed only if all values in reverseDeps are in packagesToUninstall
-				boolean canUninstall = true;
-				Set<SoftwarePackage> deps = reverseDependencies.get(dependency);    
-				for (SoftwarePackage d : deps){
-					if (!packagesToUninstall.contains(d)){
-						canUninstall = false;
-					}
-				}
-	
-				//If dependency is only needed by p, add to uninstall q, check its own dependencies.
-				if (canUninstall) {
-					packagesToUninstall.add(dep);
-					uninstallDep(dependency, packagesToUninstall);
+			}
+
+			//If dep is only needed by p or other q'd packages, add to uninstall q, and check its own dependencies.
+			if (canUninstall) {
+				packagesToUninstall.add(dep);
+				
+				//Recursively check dep's dependents
+				for (SoftwarePackage d : dependents) {
+					uninstallDep(d, packagesToUninstall);
 				}
 			}
 		}
