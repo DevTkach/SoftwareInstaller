@@ -155,7 +155,7 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
 
 	// === UNINSTALL A DEPENDENT PACKAGE ===
 	private Set<SoftwarePackage> uninstallDep(SoftwarePackage dep, Set<SoftwarePackage> packagesToUninstall) {
-			if (dep.getDependencies() != null){
+		if (dep.getDependencies() != null){
 			for (SoftwarePackage dependency : dep.getDependencies()){
 				//If dependency already in queue to uninstall, continue
 				if (packagesToUninstall.contains(dependency)) {
@@ -166,7 +166,7 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
 				boolean canUninstall = true;
 				Set<SoftwarePackage> deps = reverseDependencies.get(dependency);    
 				for (SoftwarePackage d : deps){
-					if (!packagesToUninstall.contains(d){
+					if (!packagesToUninstall.contains(d)){
 						canUninstall = false;
 					}
 				}
