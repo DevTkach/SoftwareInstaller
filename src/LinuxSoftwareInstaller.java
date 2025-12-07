@@ -170,11 +170,10 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
 				packagesToUninstall.add(dep);
 				
 				//Recursively check dep's dependents
-				for (SoftwarePackage d : dependents) {
+				for (SoftwarePackage d : dep.getDependencies()) {
 					uninstallDep(d, packagesToUninstall);
 				}
 			}
-		}
 		return packagesToUninstall;
 	}
 
