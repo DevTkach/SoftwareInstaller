@@ -118,12 +118,12 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
         
         try {
         	//If not on the dep list, p is not needed - add to queue to be uninstalled.
-			if (!reverseDependencies.contains(p) && !packagesToUninstall.contains(p)){
+			if (!reverseDependencies.containsKey(p) && !packagesToUninstall.contains(p)){
 				packagesToUninstall.add(p);
 			}
 
 			//If p is in this set, may still be able to uninstall if all packages that needed it also are queued to uninstall
-			if (reverseDependencies.contains(p)){
+			if (reverseDependencies.containsKey(p)){
 				//Gets the packages that depend on p - replaces iterating over installedPackages.
 				Set<SoftwarePackage> dependents = reverseDependencies.get(p);
 
@@ -140,32 +140,10 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
 			}
             
             //Attempt to uninstall dependencies exclusive to p
-            if (p.getDependencies() != null){
-            	for (SoftwarePackage dependency : p.getDependencies()){
-            		//If dependency already in queue to uninstall, continue
-                	if (packagesToUninstall.contains(dependency)) {
-                		continue;
-                	}
-
-					//Dependency can be removed only if all values in reverseDeps are in packagesToUninstall
-					boolean canUninstall = true;
-  					Set<SoftwarePackage> deps = reverseDependencies.get(dependency);    
-					for (SoftwarePackage dep in deps){
-						if (!packagesToUninstall.contains(dep){
-							canUninstall = false;
-						}
-            		}
-
-					//No package being kept is also dependant on this dependency of p.
-					if (canUninstall) {
-						private boolean uninstallPackage(
-        					SoftwarePackage dependency, 
-        					Set<SoftwarePackage> packagesToUninstall, 
-        					Set<SoftwarePackage> installedPackages
-						)
-					}
-                }
-            }
+			for(SoftwarePackage dependent in p.getDependencies()){
+				packagesToUninstall = uninstallDep(dependent, packagesToUninstall);
+			}
+			
         } catch (Exception e){
             //If any error, uninstall nothing (revert to restore point).
             System.out.println("Uninstall failed. Error: " + e.getMessage());
@@ -174,6 +152,34 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
 
         return true;
     }
+
+	// === UNINSTALL A DEPENDENT PACKAGE ===
+	private Set<SoftwarePackage> uninstallDep(SoftwarePackage dep, Set<SoftwarePackage> packagesToUninstall) {
+			if (dep.getDependencies() != null){
+			for (SoftwarePackage dependency : dep.getDependencies()){
+				//If dependency already in queue to uninstall, continue
+				if (packagesToUninstall.contains(dependency)) {
+					continue;
+				}
+	
+				//Dependency can be removed only if all values in reverseDeps are in packagesToUninstall
+				boolean canUninstall = true;
+				Set<SoftwarePackage> deps = reverseDependencies.get(dependency);    
+				for (SoftwarePackage dep : deps){
+					if (!packagesToUninstall.contains(dep){
+						canUninstall = false;
+					}
+				}
+	
+				//If dependency is only needed by p, add to uninstall q, check its own dependencies.
+				if (canUninstall) {
+					packagesToUninstall.add(dep);
+					uninstallDep(dependency, packagesToUninstall);
+				}
+			}
+		}
+		return packagesToUninstall;
+	}
 
 
     // === PACKAGE INSTALL STATE ===
