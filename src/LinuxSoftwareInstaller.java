@@ -39,8 +39,8 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
     
     private boolean installPackage(
         SoftwarePackage p, 
-        Set<SoftwarePackage> visited, 
-        Set<SoftwarePackage> installedDependencies
+        Set<SoftwarePackage> visited,  //tracks for circular dependencies
+        Set<SoftwarePackage> installedDependencies  //tracks installed packages if rollback needed
     ) {
     	  	
         //Checks if visited, stops infinite recursion
