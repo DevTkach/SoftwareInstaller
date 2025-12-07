@@ -104,6 +104,7 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
 
         if (success){
             installedPackages.removeAll(packagesToUninstall);
+			cleanUpReverseDependencies(packagesToUninstall);
             System.out.println("Uninstalled " + p.getName() + " successfully.");
         } else {
             System.out.println("Uninstall failed. No changes made.");
@@ -179,6 +180,19 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
 					uninstallDep(d, packagesToUninstall);
 				}
 			}
+		}
+	}
+
+
+	// === CLEAN UP REVERSE DEPENDENCY LIST ===
+	private void cleanUpReverseDependencies(Set<SoftwarePackage> packagesToUninstall) {
+		for (SoftwarePackage p : packagesToUninstall) {
+			//Remove p from all dependents sets
+			for (Set<SoftwarePackage> dependents : reverseDependencies.values()){
+				dependents.remove(p);
+			}
+			//Remove p as a key
+			reverseDependencies.remove(p);
 		}
 	}
 
