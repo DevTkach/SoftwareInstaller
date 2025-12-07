@@ -128,8 +128,8 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
 				Set<SoftwarePackage> dependents = reverseDependencies.get(p);
 
 				//If any deps aren't queued to uninstall, p is still needed
-				for (SoftwarePackage deps in dependents){
-					if (!packagesToUninstall.contains(deps){
+				for (SoftwarePackage deps : dependents){
+					if (!packagesToUninstall.contains(deps)){
 						System.out.println("Uninstall blocked: " + p.getName() + " is needed by " + deps.getName() + ".");
 						return false;
 					} 
@@ -140,7 +140,7 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
 			}
             
             //Attempt to uninstall dependencies exclusive to p
-			for(SoftwarePackage dependent in p.getDependencies()){
+			for(SoftwarePackage dependent : p.getDependencies()){
 				packagesToUninstall = uninstallDep(dependent, packagesToUninstall);
 			}
 			
@@ -165,8 +165,8 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
 				//Dependency can be removed only if all values in reverseDeps are in packagesToUninstall
 				boolean canUninstall = true;
 				Set<SoftwarePackage> deps = reverseDependencies.get(dependency);    
-				for (SoftwarePackage dep : deps){
-					if (!packagesToUninstall.contains(dep){
+				for (SoftwarePackage d : deps){
+					if (!packagesToUninstall.contains(d){
 						canUninstall = false;
 					}
 				}
