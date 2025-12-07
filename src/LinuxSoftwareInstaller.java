@@ -103,20 +103,13 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
 		);
 
         if (success){
-			for (SoftwarePackage pkg : packagesToUninstall) {
-				//Remove from packages to uninstall set
-				installedPackages.remove(pkg);
+			//Remove from packages to uninstall set
+			installedPackages.removeAll(packagesToUninstall);
 
-				//Remove from reverse dependency map
-				reverseDependencies.remove(pkg);
-
-				//Remove from other pkgs reverse dependencies
-				for (Set<SoftwarePackage> dependers : reverseDependencies.values()){
-					dependers.remove(pkg);
-				}
-			}
+			//Remove from reverse dependency map
+			reverseDependencies.removeAll(packagesToUninstall);
 			
-            System.out.println("Uninstalled " + p.getName() + " successfully.");
+            //System.out.println("Uninstalled " + p.getName() + " successfully.");
 			
         } else {
             System.out.println("Uninstall failed. No changes made.");
@@ -143,7 +136,7 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
 			//If packages depend on p, those packages must be in packagesToUninstall, otherwise it will block.
 			if (dependents != null){
 				for (SoftwarePackage dependent : dependents) {
-					if(!packagesToUninstall.contains(dependent)){
+					if(isPackageInstalled(p) && !packagesToUninstall.contains(dependent)){
 						System.out.println("Uninstall blocked: " + p.getName() + " is needed by " + dependent.getName() + ".");
 						return false;
 					}
