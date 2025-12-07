@@ -154,27 +154,32 @@ class LinuxSoftwareInstaller implements OperatingSystemInstaller {
     }
 
 	// === UNINSTALL A DEPENDENT PACKAGE ===
-	private Set<SoftwarePackage> uninstallDep(SoftwarePackage dep, Set<SoftwarePackage> packagesToUninstall) {
-			//Dep can be removed only if all values in reverseDeps are in packagesToUninstall
-			boolean canUninstall = true;
-			Set<SoftwarePackage> dependents = reverseDependencies.get(dep);
+	// This adds unneeded packages to the packagesToUninstall list without blocking the whole uninstall
+	private void uninstallDep(SoftwarePackage dep, Set<SoftwarePackage> packagesToUninstall) {
+		//Dep can be removed only if all values in reverseDeps are in packagesToUninstall
+		boolean canUninstall = true;
+		Set<SoftwarePackage> dependents = reverseDependencies.get(dep);
+
+		if (dependents != null) {
 			for (SoftwarePackage d : dependents){
 				if (!packagesToUninstall.contains(d)){
 					canUninstall = false;
 					break;
 				}
 			}
+		}
 
-			//If dep is only needed by p or other q'd packages, add to uninstall q, and check its own dependencies.
-			if (canUninstall) {
-				packagesToUninstall.add(dep);
-				
-				//Recursively check dep's dependents
+		//If dep is only needed by p or other q'd packages, add to uninstall q, and check its own dependencies.
+		if (canUninstall) {
+			packagesToUninstall.add(dep);
+			
+			//Recursively check dep's dependents
+			if (dep.getDependencies() != null) {
 				for (SoftwarePackage d : dep.getDependencies()) {
 					uninstallDep(d, packagesToUninstall);
 				}
 			}
-		return packagesToUninstall;
+		}
 	}
 
 
